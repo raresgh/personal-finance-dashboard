@@ -9,3 +9,5 @@ class Transaction(Base):
     description = Column(String, nullable=False)
     amount = Column(Numeric(10, 2), nullable=False)
     category = Column(String)
+
+    hash = Column(String, unique=True, index=True, nullable=False)

@@ -17,11 +17,11 @@ def upload_transactions(
         raise HTTPException(status_code=400, detail="Invalid file type. Please upload a CSV file.")
     
     try:
-        import_revolut_csv(file.file, db)
+        result = import_revolut_csv(file.file, db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while processing the file: {str(e)}")
-    
-    return {"detail": "Transactions uploaded successfully."}
+
+    return {"detail": "Transactions uploaded successfully.", "result": result}
 
 @router.get("/", response_model=list[TransactionRead])
 def get_transactions(db: Session = Depends(get_db), limit: int = 100, offset: int = 0):
