@@ -5,6 +5,7 @@ from datetime import date
 
 from app.api.deps import get_db
 from app.models.transaction import Transaction
+from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
@@ -12,7 +13,8 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 def monthly_summary(
     year: int,
     month: int, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
 ):
     if not 1 <= month <= 12:
         raise HTTPException(status_code=400, detail="Month must be between 1 and 12.")
@@ -32,6 +34,7 @@ def monthly_summary(
 
     total_expenses = (
         db.query(func.coalesce(func.sum(Transaction.amount), 0))
+        .filter(Transaction.user_id == user.id)
         .filter(
             Transaction.date >= start,
             Transaction.date < end,
@@ -52,7 +55,8 @@ def monthly_summary(
 def category_breakdown(
     year: int,
     month: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
 ):
     if not 1 <= month <= 12:
         raise HTTPException(status_code=400, detail="Month must be between 1 and 12.")
@@ -65,6 +69,7 @@ def category_breakdown(
             Transaction.category,
             func.coalesce(func.sum(Transaction.amount), 0).label("amount")
         )
+        .filter(Transaction.user_id == user.id)
         .filter(
             Transaction.date >= start,
             Transaction.date < end,
