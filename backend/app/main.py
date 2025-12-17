@@ -4,6 +4,7 @@ from app.db.session import engine
 from contextlib import asynccontextmanager
 
 from app.api.routes import transactions
+from app.api.routes import analytics
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,6 +22,7 @@ app = FastAPI(
 )
 
 app.include_router(transactions.router)
+app.include_router(analytics.router)
 
 @app.get("/health") 
 def health_check():
